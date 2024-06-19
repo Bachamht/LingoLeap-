@@ -49,16 +49,13 @@ func main() {
     userID := 1
     wordID := 1
 
-    // 使用正则表达式提取每行的英文单词
     re := regexp.MustCompile(`^[a-zA-Z]+`)
 
     for scanner.Scan() {
         line := scanner.Text()
-        // 提取单词
         matches := re.FindStringSubmatch(line)
         if len(matches) > 0 {
             word := matches[0]
-            // 存储到 Redis
             key := fmt.Sprintf("word:%d:%d", userID, wordID)
             err := rdb.HMSet(ctx, key, map[string]interface{}{
                 "content":      word,
@@ -80,14 +77,12 @@ func main() {
 
 
 func markWordAsRemembered(rdb *redis.Client, userID int, word string) error {
-    // 查找单词对应的键
     pattern := fmt.Sprintf("word:%d:*", userID)
     keys, err := rdb.Keys(ctx, pattern).Result()
     if err != nil {
         return err
     }
 
-    // 更新单词的 isRemembered 属性
     for _, key := range keys {
         content, err := rdb.HGet(ctx, key, "content").Result()
         if err != nil {
@@ -107,14 +102,12 @@ func markWordAsRemembered(rdb *redis.Client, userID int, word string) error {
 }
 
 func getRandomUnrememberedWords(rdb *redis.Client, userID int, numWords int) ([]string, error) {
-    // 获取所有单词的键
     pattern := fmt.Sprintf("word:%d:*", userID)
     keys, err := rdb.Keys(ctx, pattern).Result()
     if err != nil {
         return nil, err
     }
 
-    // 筛选出未记住的单词
     var unrememberedKeys []string
     for _, key := range keys {
         isRemembered, err := rdb.HGet(ctx, key, "isRemembered").Result()
@@ -126,7 +119,6 @@ func getRandomUnrememberedWords(rdb *redis.Client, userID int, numWords int) ([]
         }
     }
 
-    // 随机选择单词
     rand.Seed(time.Now().UnixNano())
     selectedKeys := make(map[int]struct{})
     var words []string
