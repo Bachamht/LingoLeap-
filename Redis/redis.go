@@ -10,33 +10,44 @@ import (
     "regexp"
     "bufio"
     "os"
+    
 )
 
 var ctx = context.Background()
+var rbd *redis.Client
 
-func main() {
-    rdb := redis.NewClient(&redis.Options{
+func ConnectRedis() {
+    rdb = redis.NewClient(&redis.Options{
         Addr: "localhost:6379",
     })
-
-    initializeUserWordList(rdb)
-
-
-    // 示例：随机挑选未记住的单词
-    words, err := getRandomUnrememberedWords(rdb, 1, 5)
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    for _, word := range words {
-        fmt.Println(word)
-        markWordAsRemembered(rdb, 1, word)
-    }
-    
-
 }
 
- func initializeUserWordList(rdb *redis.Client){
+
+func CreateLearning(userID string, numWords int) ([]string, error) {
+    // 检查 Redis 中是否已经存在该用户的单词库
+    pattern := fmt.Sprintf("word:%s:*", userID)
+    keys, err := rdb.Keys(ctx, pattern).Result()
+    if err != nil {
+        return nil, err
+    }
+
+    if len(keys) == 0 {
+        err = initializeUserWordList(rdb, userID)
+        if err != nil {
+            return nil, err
+        }
+    }
+
+    // 获取指定数量的未记住单词
+    words, err := getRandomUnrememberedWords(rdb, userID, numWords)
+    if err != nil {
+        return nil, err
+    }
+
+    return words, nil
+}
+
+ func initializeUserWordList(userID int){
     // 打开词库文件
     file, err := os.Open("./IELTSWords.txt") 
     
@@ -46,7 +57,6 @@ func main() {
     defer file.Close()
 
     scanner := bufio.NewScanner(file)
-    userID := 1
     wordID := 1
 
     re := regexp.MustCompile(`^[a-zA-Z]+`)
@@ -76,7 +86,7 @@ func main() {
 }
 
 
-func markWordAsRemembered(rdb *redis.Client, userID int, word string) error {
+func markWordAsRemembered(userID int, word string) error {
     pattern := fmt.Sprintf("word:%d:*", userID)
     keys, err := rdb.Keys(ctx, pattern).Result()
     if err != nil {
@@ -101,7 +111,7 @@ func markWordAsRemembered(rdb *redis.Client, userID int, word string) error {
     return nil
 }
 
-func getRandomUnrememberedWords(rdb *redis.Client, userID int, numWords int) ([]string, error) {
+func getRandomUnrememberedWords(userID int, numWords int) ([]string, error) {
     pattern := fmt.Sprintf("word:%d:*", userID)
     keys, err := rdb.Keys(ctx, pattern).Result()
     if err != nil {

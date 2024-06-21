@@ -27,6 +27,11 @@ var (
 	apiKey    = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 )
 
+type Message struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
+}
+
 func main() {
 	// fmt.Println(HmacWithShaTobase64("hmac-sha256", "hello\nhello", "hello"))
 	// st := time.Now()
@@ -180,7 +185,4 @@ func readResp(resp *http.Response) string {
 }
 
 
-type Message struct {
-	Role    string `json:"role"`
-	Content string `json:"content"`
-}
+

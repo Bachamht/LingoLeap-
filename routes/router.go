@@ -3,6 +3,7 @@ package routes
 import (
 	"./api"
 	"github.com/gin-gonic/gin"
+	
 )
 
 func InitRouter() {
@@ -11,7 +12,6 @@ func InitRouter() {
 	r.Use(corsMiddleware())
 	r.POST("createLearning", api.CreateLearning)
 	r.POST("communication", api.Communication)
-	
 
 	r.Run(":8877")
 }
