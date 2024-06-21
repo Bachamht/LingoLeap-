@@ -7,7 +7,6 @@ import (
 
 )
 
-// 提问
 func CreateLearning(c *gin.Context) {
 
 	var requestData model.Create_req

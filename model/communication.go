@@ -1,6 +1,7 @@
 
 package model
 import (
+	"fmt"
 )
 
 type Communication_req struct {
@@ -18,6 +19,7 @@ func CreateCommunication(requestData *Communication_req) (string, error) {
 	userID := requestData.User_id
 	//sessionID := requestData.Session_id
 	content := requestData.Content
+	fmt.Println(content)
 	role := "user"
 	answer, err := IteracionWithAI(content, userID, role)
 	if err != nil {

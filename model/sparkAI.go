@@ -15,8 +15,8 @@ import(
 	"io/ioutil"
 	"net/url"
 	"context"
+	"sync"
 )
-
 type Message struct {
 	Role    string `json:"role"`
 	Content string `json:"content"`
@@ -31,6 +31,8 @@ var (
 	apiSecret string
 	apiKey string
 	ctx = context.Background()
+	connMutex sync.Mutex
+    readWriteMutex sync.Mutex
 )
 
 
@@ -53,20 +55,24 @@ func ConnetcSpark() {
 }
 
 func CheckAndReconnect() {
+	connMutex.Lock()
+    defer connMutex.Unlock()
     if conn == nil || conn.UnderlyingConn().RemoteAddr() == nil {
         fmt.Println("连接无效，重新连接...")
-        ConnectSpark()
+        ConnetcSpark()
     }
 }
 
 func IteracionWithAI(prompt string, userID int, role string) (string, error){
-	CheckAndReconnect()
+	ConnetcSpark()
     history, err := getSessionHistory(userID)
     if err != nil {
         log.Fatalf("无法获取历史记录: %v", err)
     }
 
     go func() {
+		readWriteMutex.Lock()
+    	defer readWriteMutex.Unlock()
         data := genParams1(appid, prompt, history)
         conn.WriteJSON(data)
     }()
@@ -78,6 +84,7 @@ func IteracionWithAI(prompt string, userID int, role string) (string, error){
             fmt.Println("读取消息错误:", err)
             break
         }
+
 
         var data map[string]interface{}
         err1 := json.Unmarshal(msg, &data)
