@@ -1,10 +1,10 @@
 package api
 
 import (
-	"chatgpt/model"
+	"lingoLeap/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	
+
 )
 
 // 提问
@@ -24,8 +24,8 @@ func CreateLearning(c *gin.Context) {
 	}
 
 	res := model.Create_res{
-        session_id:	0,
-		answer:	answer,	
+        Session_id:	0,
+		Answer:	answer,	
 	}
 	c.JSON(http.StatusOK, res)
 }
@@ -40,7 +40,7 @@ func Communication(c *gin.Context) {
 		return
 	}
 
-	answer, err := model.Communication(&requestData)
+	answer, err := model.CreateCommunication(&requestData)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return

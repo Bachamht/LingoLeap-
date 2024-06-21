@@ -1,9 +1,9 @@
 package routes
 
 import (
-	"./api"
+	"lingoLeap/api"
 	"github.com/gin-gonic/gin"
-	
+
 )
 
 func InitRouter() {

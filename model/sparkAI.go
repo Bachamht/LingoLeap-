@@ -7,7 +7,14 @@ import(
 	"encoding/json"
 	"net/http"
 	"github.com/gorilla/websocket"
-
+	"os"
+	"strings"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/base64"
+	"io/ioutil"
+	"net/url"
+	"context"
 )
 
 type Message struct {
@@ -23,6 +30,7 @@ var (
 	appid string
 	apiSecret string
 	apiKey string
+	ctx = context.Background()
 )
 
 
@@ -44,8 +52,15 @@ func ConnetcSpark() {
     }
 }
 
-func IteracionWithAI(prompt string, userID int, role string) (string, error){
+func CheckAndReconnect() {
+    if conn == nil || conn.UnderlyingConn().RemoteAddr() == nil {
+        fmt.Println("连接无效，重新连接...")
+        ConnectSpark()
+    }
+}
 
+func IteracionWithAI(prompt string, userID int, role string) (string, error){
+	CheckAndReconnect()
     history, err := getSessionHistory(userID)
     if err != nil {
         log.Fatalf("无法获取历史记录: %v", err)
@@ -106,7 +121,7 @@ func IteracionWithAI(prompt string, userID int, role string) (string, error){
 }
 
 // 获取历史会话记录
-func getSessionHistory(userID string) ([]Message, error) {
+func getSessionHistory(userID int) ([]Message, error) {
     query := "SELECT role, content FROM session_info WHERE user_id = ? ORDER BY create_timestamp ASC"
     rows, err := DB.QueryContext(ctx, query, userID)
     if err != nil {
@@ -152,7 +167,7 @@ func genParams1(appid, question string, history []Message) map[string]interface{
 }
 
 // 保存会话记录到数据库
-func saveSessionRecord(userID, role, content string) {
+func saveSessionRecord(userID int, role, content string) {
     query := "INSERT INTO session_info (user_id, role, content, create_timestamp, update_timestamp) VALUES (?, ?, ?, NOW(), NOW())"
     _, err := DB.Exec(query, userID, role, content)
     if err != nil {

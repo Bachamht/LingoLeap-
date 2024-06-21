@@ -2,11 +2,18 @@ package main
 
 import (
 	"lingoLeap/model"
-	"lingoLeap/Redis"
+	"lingoLeap/redis"
+	"lingoLeap/routes"
+	"fmt"
 )
 
 func main() {
 	model.ConnectMysql()
-	Redis.ConnectRedis()
+	fmt.Println("Connected to database successfully.")
+	redis.ConnectRedis()
+	fmt.Println("Connected to Redis successfully.")
 	model.ConnetcSpark()
+	fmt.Println("Connected to Spark successfully.")
+	routes.InitRouter()
+	fmt.Println("Server started successfully.")
 }

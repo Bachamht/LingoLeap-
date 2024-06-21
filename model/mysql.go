@@ -1,4 +1,4 @@
-package db
+package model
 
 import (
 	"database/sql"
@@ -13,7 +13,7 @@ import (
 
 var DB *sql.DB
 
-func ConnectMysql(dbURL string) *sql.DB {
+func ConnectMysql() *sql.DB {
 
 	err := godotenv.Load()
 	if err != nil {
@@ -27,14 +27,14 @@ func ConnectMysql(dbURL string) *sql.DB {
 	MySQLDbname := os.Getenv("MySQLDbname")
 	dbURL := MySQLUser + ":" + MySQLPassword + "@tcp(" + MySQLHost + ":" + MySQLPort + ")/" + MySQLDbname
 
-	DB, err := sql.Open("mysql", dbURL)
+	DB, err = sql.Open("mysql", dbURL)
 	if err != nil {
 		log.Fatalf("Error connecting to database: %v", err)
 	}
 	fmt.Println("Connected to database successfully.")
 
 	// 读取 SQL 脚本内容
-	sqlScript, err := ioutil.ReadFile("./db/db.sql")
+	sqlScript, err := ioutil.ReadFile("./Mysql/db.sql")
 	if err != nil {
 		log.Fatal(err)
 	}

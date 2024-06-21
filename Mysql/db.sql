@@ -11,7 +11,7 @@
         `session_id` INT NOT NULL AUTO_INCREMENT COMMENT '会话号',
         `user_id` VARCHAR(50) NOT NULL COMMENT '用户身份号',
         `role` VARCHAR(50) NOT NULL COMMENT '会话角色',
-        `content` VARCHAR(200) NOT NULL  COMMENT '会话内容',
+        `content` TEXT NOT NULL  COMMENT '会话内容',
         `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         `update_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (`session_id`)

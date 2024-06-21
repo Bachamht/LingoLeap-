@@ -1,4 +1,4 @@
-package main
+package redis
 
 import (
     "context"
@@ -14,7 +14,7 @@ import (
 )
 
 var ctx = context.Background()
-var rbd *redis.Client
+var rdb *redis.Client
 
 func ConnectRedis() {
     rdb = redis.NewClient(&redis.Options{
@@ -23,7 +23,7 @@ func ConnectRedis() {
 }
 
 
-func CreateLearning(userID string, numWords int) ([]string, error) {
+func CreateLearning(userID int, numWords int) ([]string, error) {
     // 检查 Redis 中是否已经存在该用户的单词库
     pattern := fmt.Sprintf("word:%s:*", userID)
     keys, err := rdb.Keys(ctx, pattern).Result()
@@ -32,14 +32,14 @@ func CreateLearning(userID string, numWords int) ([]string, error) {
     }
 
     if len(keys) == 0 {
-        err = initializeUserWordList(rdb, userID)
+        err = initializeUserWordList(userID)
         if err != nil {
             return nil, err
         }
     }
 
     // 获取指定数量的未记住单词
-    words, err := getRandomUnrememberedWords(rdb, userID, numWords)
+    words, err := getRandomUnrememberedWords(userID, numWords)
     if err != nil {
         return nil, err
     }
@@ -47,12 +47,14 @@ func CreateLearning(userID string, numWords int) ([]string, error) {
     return words, nil
 }
 
- func initializeUserWordList(userID int){
+ func initializeUserWordList(userID int) error {
     // 打开词库文件
-    file, err := os.Open("./IELTSWords.txt") 
+    
+    file, err := os.Open("/Users/agito/LingoLeap-/Redis/IELTSWords.txt") 
     
     if err != nil {
         log.Fatalf("无法打开文件: %v", err)
+        return err
     }
     defer file.Close()
 
@@ -73,6 +75,7 @@ func CreateLearning(userID string, numWords int) ([]string, error) {
             }).Err()
             if err != nil {
                 log.Fatalf("无法存储到 Redis: %v", err)
+                return err
             }
             wordID++
         }
@@ -80,9 +83,12 @@ func CreateLearning(userID string, numWords int) ([]string, error) {
 
     if err := scanner.Err(); err != nil {
         log.Fatalf("扫描文件时出错: %v", err)
+        return err
+
     }
 
     fmt.Println("单词已成功导入 Redis")
+    return nil
 }
 
 
