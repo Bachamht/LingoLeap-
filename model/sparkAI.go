@@ -69,7 +69,7 @@ func IteracionWithAI(prompt string, userID int, role string) (string, error){
     if err != nil {
         log.Fatalf("无法获取历史记录: %v", err)
     }
-
+    fmt.Println(prompt)
     go func() {
 		readWriteMutex.Lock()
     	defer readWriteMutex.Unlock()

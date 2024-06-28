@@ -16,7 +16,7 @@ func CreateLearning(c *gin.Context) {
 		return
 	}
 
-	answer, err := model.CreateLearning(&requestData)
+	answer, words, err := model.CreateLearning(&requestData)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
@@ -25,6 +25,7 @@ func CreateLearning(c *gin.Context) {
 	res := model.Create_res{
         Session_id:	0,
 		Answer:	answer,	
+		Words: words,
 	}
 	c.JSON(http.StatusOK, res)
 }

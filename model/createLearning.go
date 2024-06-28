@@ -13,9 +13,10 @@ type Create_req struct {
 type Create_res struct {
 	Session_id  int
 	Answer	 string
+    Words      []string
 }
 
-func CreateLearning(requestData *Create_req) (string, error){
+func CreateLearning(requestData *Create_req) (string, []string, error){
 	userID := requestData.User_id
     wordNumber := requestData.Word_number
 	words, err := redis.CreateLearning(userID, wordNumber)
@@ -28,8 +29,8 @@ func CreateLearning(requestData *Create_req) (string, error){
         "environment  n.自然环境，生态环境；周围状况，条件；工作平台，软件包\n\n" +
         "hacker   n.黑客，骇客；不擅长某项运动的人；计算机迷；砍（或劈）的人，用于砍（或劈）的东西\n\n" +
         "Tom loves apples. He lives in a town with a beautiful **environment**. One day, while eating an **apple**, he sees a **hacker** near the apple trees. The **hacker** is using a computer to help the apple trees grow better and protect the **environment**.\n\n" +
-        "汤姆喜欢苹果。他住在一个环境优美的小镇上。一天，当他在吃苹果的时候，他看到苹果树旁边有一个黑客。**黑客**正在用电脑帮助苹果树长得更好，保护环境。\n\n"
-
+        "汤姆喜欢苹果。他住在一个环境优美的小镇上。一天，当他在吃苹果的时候，他看到苹果树旁边有一个黑客。**黑客**正在用电脑帮助苹果树长得更好，保护环境。\n\n" +
+        "本次你收到的单词为：\n\n"
     for _, word := range words {
         prompt += fmt.Sprintf("- %s\n", word)
     }
@@ -37,8 +38,8 @@ func CreateLearning(requestData *Create_req) (string, error){
 
 	answer, err1 := IteracionWithAI(prompt, userID, role)
     if err1 != nil {
-        return "", err
+        return "", nil, err
     }
 
-	return answer, nil
+	return answer, words, nil
 }
