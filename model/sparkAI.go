@@ -27,9 +27,6 @@ var (
 	resp *http.Response
 	err error
 	hostUrl string
-	appid string
-	apiSecret string
-	apiKey string
 	ctx = context.Background()
 	connMutex sync.Mutex
     readWriteMutex sync.Mutex
@@ -92,6 +89,7 @@ func IteracionWithAI(prompt string, userID int, role string) (string, error){
             fmt.Println("解析 JSON 错误:", err)
             return "", err1
         }
+        fmt.Println("data test:", data)
 
         payload := data["payload"].(map[string]interface{})
         choices := payload["choices"].(map[string]interface{})

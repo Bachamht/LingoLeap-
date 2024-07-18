@@ -12,7 +12,9 @@ func InitRouter() {
 	r.Use(corsMiddleware())
 	r.POST("createLearning", api.CreateLearning)
 	r.POST("communication", api.Communication)
-
+	r.POST("textToSpeech", api.TestToSpeech)
+	r.POST("imageCreate", api.ImageCreate)
+	r.POST("newRoleDialaogue", api.RoleDialaogueCreate)
 	r.Run(":8877")
 }
 func corsMiddleware() gin.HandlerFunc {

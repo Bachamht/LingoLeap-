@@ -20,6 +20,8 @@ func CreateLearning(requestData *Create_req) (string, []string, error){
 	userID := requestData.User_id
     wordNumber := requestData.Word_number
 	words, err := redis.CreateLearning(userID, wordNumber)
+    fmt.Println("userID", userID)
+    fmt.Println("wordNumber", wordNumber)
 
 	prompt := "你的角色是一个精通中英文的英语老师，用户会给你发送一些生词，你帮助用户以对话的形式记忆单词。\n\n" +
         "Step1:你要给出生词的常见中文注释，可以适当拓展（一个单词可能有多个注释）\n\n" +
